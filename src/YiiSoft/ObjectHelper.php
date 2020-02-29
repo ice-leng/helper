@@ -6,6 +6,34 @@ namespace Lengbin\Helper\YiiSoft;
 
 class ObjectHelper
 {
+    /**
+     * ObjectHelper constructor.
+     *
+     * @param array $config
+     */
+    public function __construct($config = [])
+    {
+        if (!empty($config)) {
+            $this->configure($this, $config);
+        }
+        $this->init();
+    }
+
+    /**
+     * Initializes the object.
+     * This method is invoked at the end of the constructor after the object is initialized with the
+     * given configuration.
+     */
+    public function init()
+    {
+    }
+
+    /**
+     * @param $object
+     * @param $properties
+     *
+     * @return mixed
+     */
     public function configure($object, $properties)
     {
         foreach ($properties as $name => $value) {
