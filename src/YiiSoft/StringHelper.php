@@ -14,7 +14,7 @@ use function mb_substr;
 /**
  * The Yii string helper provides static methods allowing you to deal with strings more efficiently.
  */
-final class StringHelper
+class StringHelper
 {
     /**
      * Returns the number of bytes in the given string.
