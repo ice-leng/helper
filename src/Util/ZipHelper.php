@@ -166,20 +166,7 @@ class ZipHelper
         }
     }
 
-    /**
-     * 正则
-     *
-     * @param string $url
-     *
-     * @return int
-     * @author lengbin(lengbin0@gmail.com)
-     */
-    protected function checkUrl($url)
-    {
-        $rule = "/((http|https):\/\/)?\w+\.(jpg|jpeg|gif|png)/";
-        preg_match($rule,$url,$result);
-        return $result;
-    }
+
 
     /**
      * 压缩文件 / 已有压缩添加文件
@@ -206,7 +193,7 @@ class ZipHelper
             } elseif (is_file($val)) {
                 //文件
                 $files = [$val];
-            } elseif ($this->checkUrl($val)) {
+            } elseif (RegularHelper::checkImage($val)) {
                 //url 文件
                 $info = pathinfo($val);
                 $basename = isset($info['basename']) ? $info['basename'] : '';
