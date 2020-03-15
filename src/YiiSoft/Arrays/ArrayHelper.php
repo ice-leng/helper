@@ -601,6 +601,21 @@ class ArrayHelper
     }
 
     /**
+     * check value
+     *  null?
+     *  ''?
+     * @param array  $array the array with keys to check
+     * @param string $key the key to check
+     *
+     * @return bool
+     */
+    public static function isValidValue(array $array, string $key): bool
+    {
+        return self::keyExists($array, $key) && !StringHelper::isEmpty($array[$key]);
+    }
+
+
+    /**
      * Sorts an array of objects or arrays (with the same structure) by one or several keys.
      * @param array $array the array to be sorted. The array will be modified after calling this method.
      * @param string|\Closure|array $key the key(s) to be sorted by. This refers to a key name of the sub-array

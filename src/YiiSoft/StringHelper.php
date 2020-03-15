@@ -432,5 +432,16 @@ class StringHelper
             ? htmlspecialchars($string, $flags)
             : htmlspecialchars($string, $flags, $encoding ?: ini_get('default_charset'), $double_encode);
     }
+
+    /**
+     *
+     * @param $value
+     *
+     * @return bool
+     */
+    public static function isEmpty($value): bool
+    {
+        return $value === '' || $value === [] || $value === null || is_string($value) && trim($value) === '';
+    }
 }
 
