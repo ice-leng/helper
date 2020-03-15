@@ -353,9 +353,9 @@ class FormatHelper
     /**
      * 列表的数据转义
      *
-     * @param array $data   数据
-     * @param array $fields 转义字段
-     * @param array $rules  规则 默认为字符串，['xx' => 'html']
+     * @param array $data    数据
+     * @param array $fields  转义字段
+     * @param array $rules   规则 默认为字符串，['xx' => 'html']
      * @param array $configs 配置
      *
      * @return array
@@ -434,5 +434,37 @@ class FormatHelper
             $data = $results;
         }
         return $data;
+    }
+
+    /**
+     *
+     * format page data and process params
+     *
+     * @param array $result
+     * @param array $params
+     * @param int   $requestPage
+     *
+     * @return array
+     */
+    public static function formatPage(array $result, array $params = [], $requestPage = 1)
+    {
+        $list = [];
+        $offset = $pageSize = $totalPage = $totalCount = 0;
+        $page = !empty($result['pages']) ? $result['pages'] : [];
+        if (!empty($page)) {
+            $offset = $requestPage;
+            $totalPage = ceil($page->totalCount / $page->pageSize);
+            $list = ($totalPage >= $offset) ? $result['models'] : [];
+            $pageSize = $page->pageSize;
+            $totalCount = $page->totalCount;
+            unset($params['access_token']);
+        }
+        return array_merge($params, [
+            'list'        => $list,
+            'currentPage' => $offset,
+            'pageSize'    => $pageSize,
+            'totalPage'   => $totalPage,
+            'totalCount'  => $totalCount,
+        ]);
     }
 }
