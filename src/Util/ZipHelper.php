@@ -127,6 +127,9 @@ class ZipHelper
      */
     protected function getFile($filename)
     {
+        if (file_exists($filename)) {
+            return $filename;
+        }
         if (!$this->_path) {
             throw new \Exception('place set zip file path');
         }
