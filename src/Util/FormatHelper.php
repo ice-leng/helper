@@ -332,7 +332,7 @@ class FormatHelper
             $except = [$except];
         }
         foreach ($except as $item) {
-            ArrayHelper::remove($params, $item);
+            ArrayHelper::removes($params, $item);
         }
         return $params;
     }
@@ -354,117 +354,108 @@ class FormatHelper
      * 列表的数据转义
      *
      * @param array $data    数据
-     * @param array $fields  转义字段
      * @param array $rules   规则 默认为字符串，['xx' => 'html']
      * @param array $configs 配置
      *
      * @return array
      * @author lengbin(lengbin0@gmail.com)
      */
-    public static function htmlSpecialChars(array $data, array $fields = [], array $rules = [], array $configs = [])
+    public static function htmlSpecialChars(array $data, array $rules = [], array $configs = [])
     {
-        if (empty($data) || empty($fields)) {
+        if (StringHelper::isEmpty($rules) || StringHelper::isEmpty($data) || (isset($data['list'])) && StringHelper::isEmpty($data['list'])) {
             return $data;
         }
-        $results = isset($data['models']) ? $data['models'] : $data;
-        $config = self::validateParams($configs, ['imageUrl']);
+        $item = [];
+        $results = isset($data['list']) ? $data['list'] : $data;
+        $imageUrl = ArrayHelper::get($configs, 'imageUrl', '');
         foreach ($results as $key => $result) {
-            $params = is_object($result) ? $result->toArray() : $result;
-            foreach ($fields as $field) {
-                if (empty($rules[$field])) {
-                    continue;
-                }
-                $isUnset = false;
-                $rule = $rules[$field];
-                if ($rule instanceof \Closure) {
-                    $html = call_user_func($rule, $result);
-                    $isUnset = $html === null;
+            $cpResult = is_object($result) ? $result->toArray() : $result;
+            foreach ($rules as $filed => $fn) {
+                $remove = false;
+                $filed = is_int($filed) ? $fn : $filed;
+                if ($fn instanceof \Closure) {
+                    $value = call_user_func($fn, $result);
+                    $remove = is_null($value);
                 } else {
-                    $html = !empty($params[$field]) ? $params[$field] : '';
-                    switch ($rule[$field]) {
+                    $value = ArrayHelper::get($cpResult, $filed);
+                    switch (strtolower($fn)) {
+                        case 'remove':
+                            $remove = true;
+                            break;
                         case 'image':
-                            $html = self::formatImage($html, $config['imageUrl']);
+                            $value = self::formatImage($value, $imageUrl);
                             break;
                         case 'images':
-                            $html = [];
-                            $images = explode('|', $params[$field]);
+                            $images = explode('|', $value);
+                            $value = [];
                             foreach ($images as $image) {
-                                if (!empty($image)) {
-                                    $html[] = self::formatImage($html, $config['imageUrl']);
+                                if (empty($image)) {
+                                    continue;
                                 }
+                                $value[] = self::formatImage($image, $imageUrl);
                             }
                             break;
                         case 'distance':
-                            $html = self::formatNumbers(($html / 1000), 1) . 'km';
+                            $value = self::formatNumbers(($value / 1000), 1) . 'km';
                             break;
                         case 'time':
-                            $html = self::formatTime($html);
+                            $value = self::formatTime($value);
                             break;
                         case 'date':
-                            $html = date('Y-m-d H:i:s', $html);
-                            break;
-                        case 'int':
-                            $html = (int)$html;
-                            break;
-                        case 'float':
-                            $html = (float)$html;
-                            break;
-                        case 'bool':
-                            $html = (bool)$html;
-                            break;
-                        case 'unset':
-                            $isUnset = true;
+                            $value = date('Y-m-d H:i:s', $value);
                             break;
                         default:
-                            $html = StringHelper::htmlspecialchars($html, ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8");
+                            $value = htmlspecialchars($value);
                             break;
                     }
                 }
-                if ($isUnset) {
-                    unset($params[$field]);
-                    continue;
+                if ($remove) {
+                    ArrayHelper::removes($cpResult, $filed);
+                } else {
+                    $cpResult[$filed] = $value;
                 }
-                $params[$field] = $html;
             }
-            $results[$key] = $params;
+            $item[$key] = $cpResult;
         }
-        if (isset($data['models'])) {
-            $data['models'] = $results;
+        if (isset($data['list'])) {
+            $data['list'] = $item;
         } else {
-            $data = $results;
+            $data = $item;
         }
         return $data;
+
     }
 
     /**
      *
      * format page data and process params
      *
-     * @param array $result
-     * @param array $params
-     * @param int   $requestPage
+     * @param mixed $result
+     * @param array $configs
      *
      * @return array
      */
-    public static function formatPage(array $result, array $params = [], $requestPage = 1)
+    public static function formatPage($result, array $configs = [])
     {
-        $list = [];
-        $offset = $pageSize = $totalPage = $totalCount = 0;
-        $page = !empty($result['pages']) ? $result['pages'] : [];
-        if (!empty($page)) {
-            $offset = $requestPage;
-            $totalPage = ceil($page->totalCount / $page->pageSize);
-            $list = ($totalPage >= $offset) ? $result['models'] : [];
-            $pageSize = $page->pageSize;
-            $totalCount = $page->totalCount;
-            unset($params['access_token']);
+        $page = ArrayHelper::get($configs, 'page', 1);
+        $page = $page > 0 ? $page : 1;
+        $pageSize = ArrayHelper::get($configs, 'pageSize', 10);
+        $offset = ($page - 1) * $pageSize;
+
+        if (is_object($result)) {
+            $total = $result->count();
+            $list = $result->offset($offset)->limit($pageSize)->all();
+        } else {
+            $total = count($result);
+            /* @var $result array */
+            $list = array_slice($result, $offset, $pageSize);
         }
-        return array_merge($params, [
-            'list'        => $list,
-            'currentPage' => $offset,
-            'pageSize'    => $pageSize,
-            'totalPage'   => $totalPage,
-            'totalCount'  => $totalCount,
-        ]);
+
+        return [
+            'list'      => $list,
+            'pageSize'  => $pageSize,
+            'total'     => $total,
+            'totalPage' => ceil($total / $pageSize),
+        ];
     }
 }
