@@ -205,6 +205,50 @@ class ArrayHelper
     }
 
     /**
+     * Get an item from an array or object using "dot" notation.
+     *
+     * 支持 xx.*.xx 获取
+     *
+     * @param array|object              $target
+     * @param string|array|int|\Closure $key
+     * @param null|mixed                $default
+     *
+     * @return array|mixed
+     */
+    public static function get($target, $key = null, $default = null)
+    {
+        if (is_null($key)) {
+            return $target;
+        }
+
+        if ($key instanceof \Closure) {
+            return $key($target, $default);
+        }
+
+        $key = is_array($key) ? $key : explode('.', is_int($key) ? (string)$key : $key);
+
+        while (!is_null($segment = array_shift($key))) {
+            if (self::isTraversable($target) && isset($target[$segment])) {
+                $target = $target[$segment];
+            } elseif (is_object($target) && isset($target->{$segment})) {
+                $target = $target->{$segment};
+            } else {
+                if ($segment === '*') {
+                    $data = [];
+                    foreach ($target as $item) {
+                        $data[] = self::get($item, $key, $default);
+                    }
+                    return $data;
+                } else {
+                    return $default;
+                }
+            }
+        }
+        return $target;
+    }
+
+
+    /**
      * Writes a value into an associative array at the key path specified.
      * If there is no such key path yet, it will be created recursively.
      * If the key exists, it will be overwritten.
@@ -277,6 +321,60 @@ class ArrayHelper
         }
 
         $array[array_shift($keys)] = $value;
+    }
+
+    /**
+     * Removes an item from an array and returns the value. If the key does not exist in the array, the default value
+     * will be returned instead.
+     *
+     * Usage examples,
+     *
+     * ```php
+     *   $data = [
+     *          [
+     *              "category_name" => 'test1',
+     *              'remove' => [1, 2, 3]
+     *          ],
+     *          [
+     *              "category_name" => 'test2',
+     *              'remove' => [4, 5, 6]
+     *          ]
+     *   ];
+     *
+     *   ArrayHelper::removes($data, '*.remove');
+     *   // array content
+     *   // $data = [["category_name" => 'test1'], [ "category_name" => 'test2']];
+     *
+     * ```
+     *
+     * @param mixed $target  the array to extract value from
+     * @param mixed $key     key name of the array element
+     *
+     * @return mixed the value of the element if found, default value otherwise
+     */
+    public static function removes(&$target, $key)
+    {
+        $segments = is_array($key) ? $key : explode('.', is_int($key) ? (string)$key : $key);
+        $segment = array_shift($segments);
+
+        if (!empty($segments)) {
+            if (self::isTraversable($target) && isset($target[$segment])) {
+                self::removes($target[$segment], $segments);
+            } elseif (is_object($target) && isset($target->{$segment})) {
+                self::removes($target->{$segment}, $segments);
+            } else {
+                if ($segment === '*') {
+                    foreach ($target as $index => $item) {
+                        self::removes($item, $segments);
+                        $target[$index] = $item;
+                    }
+                }else {
+                    self::removes($target[$segment], $segments);
+                }
+            }
+        } else {
+            self::remove($target, $segment);
+        }
     }
 
     /**
