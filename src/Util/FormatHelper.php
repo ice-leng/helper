@@ -351,105 +351,24 @@ class FormatHelper
     }
 
     /**
-     * 列表的数据转义
-     *
-     * @param array $data    数据
-     * @param array $rules   规则 默认为字符串，['xx' => 'html']
-     * @param array $configs 配置
-     *
-     * @return array
-     * @author lengbin(lengbin0@gmail.com)
-     */
-    public static function htmlSpecialChars(array $data, array $rules = [], array $configs = [])
-    {
-        if (StringHelper::isEmpty($rules) || StringHelper::isEmpty($data) || (isset($data['list'])) && StringHelper::isEmpty($data['list'])) {
-            return $data;
-        }
-        $item = [];
-        $results = isset($data['list']) ? $data['list'] : $data;
-        $imageUrl = ArrayHelper::get($configs, 'imageUrl', '');
-        foreach ($results as $key => $result) {
-            $cpResult = is_object($result) ? $result->toArray() : $result;
-            foreach ($rules as $filed => $fn) {
-                $remove = false;
-                $filed = is_int($filed) ? $fn : $filed;
-                if ($fn instanceof \Closure) {
-                    $value = call_user_func($fn, $result);
-                    $remove = is_null($value);
-                } else {
-                    $value = ArrayHelper::get($cpResult, $filed);
-                    switch (strtolower($fn)) {
-                        case 'remove':
-                            $remove = true;
-                            break;
-                        case 'image':
-                            $value = self::formatImage($value, $imageUrl);
-                            break;
-                        case 'images':
-                            $images = explode('|', $value);
-                            $value = [];
-                            foreach ($images as $image) {
-                                if (empty($image)) {
-                                    continue;
-                                }
-                                $value[] = self::formatImage($image, $imageUrl);
-                            }
-                            break;
-                        case 'distance':
-                            $value = self::formatNumbers(($value / 1000), 1) . 'km';
-                            break;
-                        case 'time':
-                            $value = self::formatTime($value);
-                            break;
-                        case 'date':
-                            $value = date('Y-m-d H:i:s', $value);
-                            break;
-                        default:
-                            $value = htmlspecialchars($value);
-                            break;
-                    }
-                }
-                if ($remove) {
-                    ArrayHelper::removes($cpResult, $filed);
-                } else {
-                    $cpResult[$filed] = $value;
-                }
-            }
-            $item[$key] = $cpResult;
-        }
-        if (isset($data['list'])) {
-            $data['list'] = $item;
-        } else {
-            $data = $item;
-        }
-        return $data;
-
-    }
-
-    /**
      *
      * format page data and process params
      *
-     * @param mixed $result
-     * @param array $configs
+     * @param array $result
+     * @param int   $page
+     * @param int   $pageSize
      *
      * @return array
      */
-    public static function formatPage($result, array $configs = [])
+    public static function formatPage(array $result, int $page = 1, int $pageSize = 10): array
     {
-        $page = ArrayHelper::get($configs, 'page', 1);
-        $page = $page > 0 ? $page : 1;
-        $pageSize = ArrayHelper::get($configs, 'pageSize', 10);
+        if ($page < 0) {
+            $page = 1;
+        }
         $offset = ($page - 1) * $pageSize;
 
-        if (is_object($result)) {
-            $total = $result->count();
-            $list = $result->offset($offset)->limit($pageSize)->all();
-        } else {
-            $total = count($result);
-            /* @var $result array */
-            $list = array_slice($result, $offset, $pageSize);
-        }
+        $total = count($result);
+        $list = array_slice($result, $offset, $pageSize);
 
         return [
             'list'      => $list,

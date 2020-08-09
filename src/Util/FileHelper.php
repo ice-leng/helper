@@ -6,13 +6,15 @@
  * Time: 下午3:15
  */
 
-namespace Lengbin\Helper\Directory;
+namespace Lengbin\Helper\Util;
+
+use Lengbin\Helper\YiiSoft\BaseFileHelper;
 
 /**
  * Class FileHelper
  * @package Lengbin\Helper\Directory
  */
-class FileHelper
+class FileHelper extends BaseFileHelper
 {
     /**
      * 网络路径读取文件
@@ -20,27 +22,25 @@ class FileHelper
      * @param string $url
      * @param int    $timeout 超时时间
      *
-     * @return bool|mixed|string
-     * @author lengbin(lengbin0@gmail.com)
+     * @return null|string
      */
-    public static function getFile($url, $timeout = 10)
+    public static function getUrlFile(string $url, int $timeout = 10): ?string
     {
         $ctx = stream_context_create(['http' => ['timeout' => $timeout]]);
         $content = @file_get_contents($url, 0, $ctx);
         if ($content) {
             return $content;
         }
-        return false;
+        return null;
     }
 
     /**
      * 写文件，如果文件目录不存在，则递归生成
      *
-     * @param  string $file    文件名 路径+文件
-     * @param  string $content 内容
+     * @param string $file    文件名 路径+文件
+     * @param string $content 内容
      *
      * @return bool|int
-     * @author lengbin(lengbin0@gmail.com)
      */
     public static function putFile($file, $content)
     {
@@ -61,7 +61,6 @@ class FileHelper
      * @param $fileName
      *
      * @return string
-     * @author lengbin(lengbin0@gmail.com)
      */
     public static function getExtension($fileName)
     {
@@ -77,7 +76,6 @@ class FileHelper
      * @param int    $num
      *
      * @return array
-     * @author lengbin(lengbin0@gmail.com)
      */
     public static function readFileLastContent($file, $num = 1)
     {
@@ -110,37 +108,63 @@ class FileHelper
     }
 
     /**
-     * 下载文件
+     * 递归修改目录/文件权限
      *
-     * @param string $name 文件名称
-     * @param string $url  网络路径
+     * @param string $path  路径
+     * @param int    $chmod 权限
      *
-     * @return string
+     * @return bool
      * @author lengbin(lengbin0@gmail.com)
      */
-    public static function downloadImage($name, $url)
+    public static function chmod($path, $chmod)
     {
-        $suffix = FileHelper::getExtension($url);
-        if (empty($suffix)) {
-            return false;
+        if (!is_dir($path)) {
+            return @chmod($path, $chmod);
         }
-        $info = getimagesize($url);
-        if ($info) {
-            switch ($info[2]) {
-                case 1:
-                    $suffix = 'gif';
-                    break;
-                case 2:
-                    $suffix = 'jpg';
-                    break;
-                case 3:
-                    $suffix = 'png';
-                    break;
+        $dh = opendir($path);
+        while (($file = readdir($dh)) !== false) {
+            if ($file !== '.' && $file !== '..') {
+                $fullPath = $path . '/' . $file;
+                if (is_link($fullPath)) {
+                    return FALSE;
+                } elseif (!is_dir($fullPath) && !@chmod($fullPath, $chmod)) {
+                    return FALSE;
+                } elseif (!self::chmod($fullPath, $chmod)) {
+                    return FALSE;
+                }
             }
         }
-        $file = $name . '.' . $suffix;
-        FileHelper::putFile($file, FileHelper::getFile($url));
-        return $file;
+        closedir($dh);
+        if (@chmod($path, $chmod)) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    /**
+     * 目录下是否有文件
+     *
+     * @param $path
+     *
+     * @return bool
+     *
+     * @author lengbin(lengbin0@gmail.com)
+     */
+    public static function dirExistFile($path)
+    {
+        if (!is_dir($path)) {
+            return false;
+        }
+        $files = scandir($path);
+        // 删除  "." 和 ".."
+        unset($files[0]);
+        unset($files[1]);
+        // 判断是否为空
+        if (!empty($files[2])) {
+            return true;
+        }
+        return false;
     }
 
 }

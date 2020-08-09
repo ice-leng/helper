@@ -247,7 +247,6 @@ class ArrayHelper
         return $target;
     }
 
-
     /**
      * Writes a value into an associative array at the key path specified.
      * If there is no such key path yet, it will be created recursively.
@@ -711,7 +710,6 @@ class ArrayHelper
     {
         return self::keyExists($array, $key) && !StringHelper::isEmpty($array[$key]);
     }
-
 
     /**
      * Sorts an array of objects or arrays (with the same structure) by one or several keys.

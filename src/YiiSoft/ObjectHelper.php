@@ -11,7 +11,7 @@ class ObjectHelper
      *
      * @param array $config
      */
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
         if (!empty($config)) {
             $this->configure($this, $config);
@@ -55,10 +55,11 @@ class ObjectHelper
         $getter = 'get' . $name;
         if (method_exists($this, $getter)) {
             return $this->$getter();
+        } elseif (property_exists($this, $name)) {
+            return $this->{$name};
         } elseif (method_exists($this, 'set' . $name)) {
             throw new \RuntimeException('Getting write-only property: ' . get_class($this) . '::' . $name);
         }
-
         throw new \RuntimeException('Getting unknown property: ' . get_class($this) . '::' . $name);
     }
 
@@ -75,6 +76,8 @@ class ObjectHelper
         $setter = 'set' . $name;
         if (method_exists($this, $setter)) {
             $this->$setter($value);
+        } elseif (property_exists($this, $name)) {
+            $this->{$name} = $value;
         } elseif (method_exists($this, 'get' . $name)) {
             throw new \RuntimeException('Setting read-only property: ' . get_class($this) . '::' . $name);
         } else {

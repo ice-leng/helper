@@ -2,6 +2,8 @@
 
 namespace Lengbin\Helper\Util;
 
+use Lengbin\Helper\YiiSoft\StringHelper;
+
 class RegularHelper
 {
     /**
@@ -12,13 +14,14 @@ class RegularHelper
      * @return int
      * @author lengbin(lengbin0@gmail.com)
      */
-    public static function checkUrl($url)
+    public static function checkUrl($url): bool
     {
+        if (StringHelper::isEmpty($url)) {
+            return false;
+        }
         $rule = "/((http|https):\/\/)+(\w+\.)+(\w+)[\w\/\.\-]*/";
-        preg_match($rule, $url, $result);
-        return $result;
+        return preg_match($rule, $url);
     }
-
 
     /**
      * 正则
@@ -28,10 +31,26 @@ class RegularHelper
      * @return int
      * @author lengbin(lengbin0@gmail.com)
      */
-    public static function checkImage($url)
+    public static function checkImage($url): bool
     {
+        if (StringHelper::isEmpty($url)) {
+            return false;
+        }
         $rule = "/((http|https):\/\/)?\w+\.(jpg|jpeg|gif|png)/";
-        preg_match($rule,$url,$result);
-        return $result;
+        return preg_match($rule, $url);
+    }
+
+    /**
+     * @param $password
+     *
+     * @return bool
+     */
+    public static function checkPassword($password): bool
+    {
+        if (StringHelper::isEmpty($password)) {
+            return false;
+        }
+        $rule = "^(?=.*[a-zA-Z0-9].*)(?=.*[a-zA-Z\\W].*)(?=.*[0-9\\W].*).{6,20}$";
+        return preg_match($rule, $password);
     }
 }
