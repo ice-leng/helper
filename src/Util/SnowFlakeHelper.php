@@ -8,69 +8,74 @@
 
 namespace Lengbin\Helper\Util;
 
-
-abstract class SnowFlakeHelper
+class SnowFlakeHelper
 {
-    const EPOCH = 1479533469598;
-    const MAX12BIT = 4095;
-    const MAX41BIT = 1099511627775;
+    private static $lastTimestamp = 0;
+    private static $lastSequence  = 0;
+    private static $sequenceMask  = 4095;
+    private static $twepoch       = 1508945092000;
 
-    static $machineId = null;
-
-    public static function machineId($mId = 0)
+    /**
+     * 生成基于雪花算法的随机编号
+     * @author : evalor <master@evalor.cn>
+     * @param int $dataCenterID 数据中心ID 0-31
+     * @param int $workerID     任务进程ID 0-31
+     * @return int 分布式ID
+     */
+    static function make($dataCenterID = 0, $workerID = 0)
     {
-        self::$machineId = $mId;
-    }
-
-    public static function generateParticle()
-    {
-        /*
-        * Time - 42 bits
-        */
-        $time = floor(microtime(true) * 1000);
-
-        /*
-        * Substract custom epoch from current time
-        */
-        $time -= self::EPOCH;
-
-        /*
-        * Create a base and add time to it
-        */
-        $base = decbin(self::MAX41BIT + $time);
-
-
-        /*
-        * Configured machine id - 10 bits - up to 1024 machines
-        */
-        if (!self::$machineId) {
-            $machineid = self::$machineId;
+        // 41bit timestamp + 5bit dataCenter + 5bit worker + 12bit
+        $timestamp = self::timeGen();
+        if (self::$lastTimestamp == $timestamp) {
+            self::$lastSequence = (self::$lastSequence + 1) & self::$sequenceMask;
+            if (self::$lastSequence == 0) $timestamp = self::tilNextMillis(self::$lastTimestamp);
         } else {
-            $machineid = str_pad(decbin(self::$machineId), 10, "0", STR_PAD_LEFT);
+            self::$lastSequence = 0;
         }
-
-        /*
-        * sequence number - 12 bits - up to 4096 random numbers per machine
-        */
-        $random = str_pad(decbin(mt_rand(0, self::MAX12BIT)), 12, "0", STR_PAD_LEFT);
-
-        /*
-        * Pack
-        */
-        $base = $base . $machineid . $random;
-
-        /*
-        * Return unique time id no
-        */
-        return bindec($base);
+        self::$lastTimestamp = $timestamp;
+        $snowFlakeId = (($timestamp - self::$twepoch) << 22) | ($dataCenterID << 17) | ($workerID << 12) | self::$lastSequence;
+        return $snowFlakeId;
     }
 
-    public static function timeFromParticle($particle)
+    /**
+     * 反向解析雪花算法生成的编号
+     * @author : evalor <master@evalor.cn>
+     * @param int|float $snowFlakeId
+     * @return \stdClass
+     */
+    static function unmake($snowFlakeId)
     {
-        /*
-        * Return time
-        */
-        $number = bindec(substr(decbin($particle), 0, 41)) - self::MAX41BIT + self::EPOCH;
-        return (int)substr($number, 0, 10);
+        $Binary = str_pad(decbin($snowFlakeId), 64, '0', STR_PAD_LEFT);
+        $Object = new \stdClass;
+        $Object->timestamp = bindec(substr($Binary, 0, 42)) + self::$twepoch;
+        $Object->dataCenterID = bindec(substr($Binary, 42, 5));
+        $Object->workerID = bindec(substr($Binary, 47, 5));
+        $Object->sequence = bindec(substr($Binary, -12));
+        return $Object;
+    }
+
+    /**
+     * 等待下一毫秒的时间戳
+     * @author : evalor <master@evalor.cn>
+     * @param $lastTimestamp
+     * @return float
+     */
+    private static function tilNextMillis($lastTimestamp)
+    {
+        $timestamp = self::timeGen();
+        while ($timestamp <= $lastTimestamp) {
+            $timestamp = self::timeGen();
+        }
+        return $timestamp;
+    }
+
+    /**
+     * 获取毫秒级时间戳
+     * @author : evalor <master@evalor.cn>
+     * @return float
+     */
+    private static function timeGen()
+    {
+        return (float)sprintf('%.0f', microtime(true) * 1000);
     }
 }
