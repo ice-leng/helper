@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Lengbin\Helper\YiiSoft;
+namespace Lengbin\Helper;
 
-class ObjectHelper
+class BaseObject
 {
     /**
      * ObjectHelper constructor.
