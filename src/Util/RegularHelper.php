@@ -11,7 +11,7 @@ class RegularHelper
      *
      * @param string $url
      *
-     * @return int
+     * @return bool
      * @author lengbin(lengbin0@gmail.com)
      */
     public static function checkUrl($url): bool
@@ -28,7 +28,7 @@ class RegularHelper
      *
      * @param string $url
      *
-     * @return int
+     * @return bool
      * @author lengbin(lengbin0@gmail.com)
      */
     public static function checkImage($url): bool
@@ -41,6 +41,8 @@ class RegularHelper
     }
 
     /**
+     * 密码
+     *
      * @param $password
      *
      * @return bool

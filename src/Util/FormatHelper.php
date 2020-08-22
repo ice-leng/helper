@@ -316,41 +316,6 @@ class FormatHelper
     }
 
     /**
-     *   except params
-     *
-     * @param array        $params 请求参数
-     * @param string|array $except
-     *
-     * @return array
-     */
-    public static function exceptParams(array $params, $except = null)
-    {
-        if ($except === null) {
-            return $params;
-        }
-        if (!is_array($except)) {
-            $except = [$except];
-        }
-        foreach ($except as $item) {
-            ArrayHelper::removes($params, $item);
-        }
-        return $params;
-    }
-
-    /**
-     * image 路由
-     *
-     * @param        $image
-     * @param string $path
-     *
-     * @return string
-     */
-    public static function formatImage($image, $path = '')
-    {
-        return RegularHelper::checkImage($image) ? $image : ($path . $image);
-    }
-
-    /**
      *
      * format page data and process params
      *
