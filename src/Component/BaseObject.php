@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Lengbin\Helper;
+namespace Lengbin\Helper\Component;
 
 class BaseObject
 {
