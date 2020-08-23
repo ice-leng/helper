@@ -81,7 +81,7 @@ abstract class RedisCacheHelper
         // get
         $k = $this->getCacheKey($key, $prefix);
         $data = $redis->get($k);
-        if ($data !== false || !is_null($data)) {
+        if (!StringHelper::isEmpty($data) && !is_null($data)) {
             return unserialize($data);
         }
         // call back
@@ -126,7 +126,7 @@ abstract class RedisCacheHelper
         $missed = [];
         foreach ($data as $index => $item) {
             // 获得 未缓存 key
-            if ($item === false || is_null($item)) {
+            if (StringHelper::isEmpty($item) || is_null($item)) {
                 $key = $keys[$index];
                 $missed[$index] = $key;
                 continue;
