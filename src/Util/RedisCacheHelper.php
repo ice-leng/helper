@@ -81,7 +81,7 @@ abstract class RedisCacheHelper
         // get
         $k = $this->getCacheKey($key, $prefix);
         $data = $redis->get($k);
-        if (!StringHelper::isEmpty($data) && !is_null($data)) {
+        if ($data) {
             return unserialize($data);
         }
         // call back
