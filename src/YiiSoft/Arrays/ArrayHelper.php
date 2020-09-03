@@ -414,6 +414,22 @@ class ArrayHelper
     }
 
     /**
+     * 多删除
+     *
+     * @param array $array
+     * @param array $fields
+     *
+     * @return array
+     */
+    public static function unset(array $array, array $fields): array
+    {
+        foreach ($fields as $field) {
+            self::removes($array, $field);
+        }
+        return $array;
+    }
+
+    /**
      * Removes items with matching values from the array and returns the removed items.
      *
      * Example,
