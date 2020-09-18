@@ -1112,14 +1112,14 @@ class ArrayHelper
      */
     public static function valueAdd(array $arrays, array $except = []): array
     {
-        $count = count($arrays);
-        if ($count < 1) {
+        if (empty($arrays)) {
             return $arrays;
         }
-        $data = $arrays[0];
-        if (empty($data)) {
-            return $data;
+        $count = count($arrays);
+        if ($count <= 1) {
+            return current($arrays);
         }
+        $data = $arrays[0];
         for ($i = 1; $i < $count; $i++) {
             $items = $arrays[$i];
             if (empty($items)) {
