@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace Lengbin\Helper\Component;
 
+use Lengbin\Helper\Util\FormatHelper;
+use phpDocumentor\Reflection\Types\Array_;
+use phpDocumentor\Reflection\Types\Object_;
+use Roave\BetterReflection\BetterReflection;
+use Roave\BetterReflection\Reflection\ReflectionClass;
+
 class BaseObject
 {
     /**
@@ -29,6 +35,71 @@ class BaseObject
     }
 
     /**
+     * 创建对象
+     *
+     * @param string $className
+     * @param mixed  $value
+     *
+     * @return object
+     */
+    private function createObject(string $className, $value): object
+    {
+        $class = new $className;
+        if ($class instanceof BaseObject) {
+            $class->configure($class, $value);
+        }
+        return $class;
+    }
+
+    /**
+     * 属性 注解
+     *
+     * @param array $docBlockTypes
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    private function fromDocBlock($value, array $docBlockTypes = [])
+    {
+        foreach ($docBlockTypes as $docBlockType) {
+            if ($docBlockType instanceof Array_) {
+                $valueType = $docBlockType->getValueType();
+                if ($valueType instanceof Object_) {
+                    foreach ($value as $k => $v) {
+                        $value[$k] = $this->createObject($valueType->__toString(), $v);
+                    }
+                }
+            }
+            if ($docBlockType instanceof Object_) {
+                $value = $this->createObject($docBlockType->getFqsen()->__toString(), $value);
+            }
+        }
+        return $value;
+    }
+
+    /**
+     * method
+     *
+     * @param ReflectionClass $classInfo
+     * @param string          $fun
+     * @param mixed           $value
+     *
+     * @return mixed
+     */
+    private function fromMethod(ReflectionClass $classInfo, string $fun, $value)
+    {
+        $method = $classInfo->getMethod($fun);
+        $parameters = $method->getParameters();
+        if (count($parameters) === 1) {
+            $value = [$value];
+        }
+        foreach ($parameters as $key => $parameter) {
+            $value[$key] = $this->fromDocBlock($value[$key], $parameter->getDocBlockTypes());
+        }
+        return $value;
+    }
+
+    /**
      * @param $object
      * @param $properties
      *
@@ -36,8 +107,20 @@ class BaseObject
      */
     public function configure($object, $properties)
     {
+        $className = get_class($object);
+        $classInfo = (new BetterReflection())->classReflector()->reflect($className);
         foreach ($properties as $name => $value) {
-            $object->$name = $value;
+            $fun = 'set' . ucfirst(FormatHelper::camelize($name));
+            $property = $classInfo->getProperty($name);
+            if ($classInfo->hasMethod($fun)) {
+                if (is_null($property)) {
+                    $object->$fun(...$this->fromMethod($classInfo, $fun, $value));
+                } else {
+                    $object->$fun($this->fromDocBlock($value, $property->getDocBlockTypes()));
+                }
+            } else {
+                $object->$name = $value;
+            }
         }
         return $object;
     }

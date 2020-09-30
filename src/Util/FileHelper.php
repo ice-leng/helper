@@ -9,6 +9,9 @@
 namespace Lengbin\Helper\Util;
 
 use Lengbin\Helper\YiiSoft\BaseFileHelper;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
 
 /**
  * Class FileHelper
@@ -42,7 +45,7 @@ class FileHelper extends BaseFileHelper
      *
      * @return bool|int
      */
-    public static function putFile($file, $content)
+    public static function putFile(string $file, string $content)
     {
         $pathInfo = pathinfo($file);
         if (!empty($pathInfo['dirname'])) {
@@ -77,7 +80,7 @@ class FileHelper extends BaseFileHelper
      *
      * @return array
      */
-    public static function readFileLastContent($file, $num = 1)
+    public static function readFileLastContent(string $file, $num = 1): array
     {
         $fp = fopen($file, "r");
         $pos = -2;
@@ -165,6 +168,16 @@ class FileHelper extends BaseFileHelper
             return true;
         }
         return false;
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return RecursiveIteratorIterator|SplFileInfo[]
+     */
+    public static function scan(string $path): RecursiveIteratorIterator
+    {
+        return new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS));
     }
 
 }
