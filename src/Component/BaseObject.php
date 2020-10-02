@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lengbin\Helper\Component;
 
 use Lengbin\Helper\Util\FormatHelper;
+use Lengbin\Helper\YiiSoft\Arrays\ArrayHelper;
 use phpDocumentor\Reflection\Types\Array_;
 use phpDocumentor\Reflection\Types\Object_;
 use Roave\BetterReflection\BetterReflection;
@@ -166,5 +167,14 @@ class BaseObject
         } else {
             throw new \RuntimeException('Setting unknown property: ' . get_class($this) . '::' . $name);
         }
+    }
+
+    /**
+     * object  public method toArray
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return ArrayHelper::toArray($this);
     }
 }
