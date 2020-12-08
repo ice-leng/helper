@@ -30,7 +30,7 @@ class FileHelper extends BaseFileHelper
     public static function getUrlFile(string $url, int $timeout = 10): ?string
     {
         $ctx = stream_context_create(['http' => ['timeout' => $timeout]]);
-        $content = @file_get_contents($url, 0, $ctx);
+        $content = file_get_contents($url, 0, $ctx);
         if ($content) {
             return $content;
         }
@@ -42,20 +42,21 @@ class FileHelper extends BaseFileHelper
      *
      * @param string $file    文件名 路径+文件
      * @param string $content 内容
+     * @param int    $flags
      *
-     * @return bool|int
+     * @return bool
      */
-    public static function putFile(string $file, string $content)
+    public static function putFile(string $file, string $content, $flags = 0): bool
     {
         $pathInfo = pathinfo($file);
         if (!empty($pathInfo['dirname'])) {
             if (file_exists($pathInfo['dirname']) === false) {
-                if (@mkdir($pathInfo['dirname'], 0777, true) === false) {
+                if (mkdir($pathInfo['dirname'], 0644, true) === false) {
                     return false;
                 }
             }
         }
-        return @file_put_contents($file, $content);
+        return file_put_contents($file, $content, $flags) ? true : false;
     }
 
     /**
@@ -65,7 +66,7 @@ class FileHelper extends BaseFileHelper
      *
      * @return string
      */
-    public static function getExtension($fileName)
+    public static function getExtension($fileName): string
     {
         $ext = explode('.', $fileName);
         $ext = array_pop($ext);
@@ -82,11 +83,14 @@ class FileHelper extends BaseFileHelper
      */
     public static function readFileLastContent(string $file, $num = 1): array
     {
+        $lines = [];
+        if (!is_file($file)) {
+            return $lines;
+        }
         $fp = fopen($file, "r");
         $pos = -2;
         $eof = "";
         $head = false;   //当总行数小于Num时，判断是否到第一行了
-        $lines = [];
         while ($num > 0) {
             while ($eof !== "\n") {
                 if (fseek($fp, $pos, SEEK_END) === 0) {
@@ -119,10 +123,10 @@ class FileHelper extends BaseFileHelper
      * @return bool
      * @author lengbin(lengbin0@gmail.com)
      */
-    public static function chmod($path, $chmod)
+    public static function chmod($path, $chmod): bool
     {
         if (!is_dir($path)) {
-            return @chmod($path, $chmod);
+            return chmod($path, $chmod);
         }
         $dh = opendir($path);
         while (($file = readdir($dh)) !== false) {
@@ -130,7 +134,7 @@ class FileHelper extends BaseFileHelper
                 $fullPath = $path . '/' . $file;
                 if (is_link($fullPath)) {
                     return FALSE;
-                } elseif (!is_dir($fullPath) && !@chmod($fullPath, $chmod)) {
+                } elseif (!is_dir($fullPath) && !chmod($fullPath, $chmod)) {
                     return FALSE;
                 } elseif (!self::chmod($fullPath, $chmod)) {
                     return FALSE;
@@ -138,7 +142,7 @@ class FileHelper extends BaseFileHelper
             }
         }
         closedir($dh);
-        if (@chmod($path, $chmod)) {
+        if (chmod($path, $chmod)) {
             return TRUE;
         } else {
             return FALSE;
