@@ -56,8 +56,7 @@ class FileHelper extends BaseFileHelper
                 }
             }
         }
-        $status = file_put_contents($file, $content, $flags);
-        return $status ? true : false;
+        return (bool)file_put_contents($file, $content, $flags);
     }
 
     /**
