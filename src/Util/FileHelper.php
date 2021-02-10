@@ -51,12 +51,13 @@ class FileHelper extends BaseFileHelper
         $pathInfo = pathinfo($file);
         if (!empty($pathInfo['dirname'])) {
             if (file_exists($pathInfo['dirname']) === false) {
-                if (mkdir($pathInfo['dirname'], 0644, true) === false) {
+                if (mkdir($pathInfo['dirname'], 0755, true) === false) {
                     return false;
                 }
+                chmod($pathInfo['dirname'], 0755);
             }
         }
-        return (bool)file_put_contents($file, $content, $flags);
+        return file_put_contents($file, $content, $flags);
     }
 
     /**
