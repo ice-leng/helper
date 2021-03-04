@@ -14,12 +14,12 @@ class RegularHelper
      * @return bool
      * @author lengbin(lengbin0@gmail.com)
      */
-    public static function checkUrl($url): bool
+    public static function checkUrl(string $url): bool
     {
         if (StringHelper::isEmpty($url)) {
             return false;
         }
-        $rule = "/((http|https):\/\/)+(\w+\.)+(\w+)[\w\/\.\-]*/";
+        $rule = "/((http|https):\/\/)+(\w+)[\w\/\.\-]*/";
         return preg_match($rule, $url);
     }
 
