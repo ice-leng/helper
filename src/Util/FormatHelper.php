@@ -158,128 +158,15 @@ class FormatHelper
     }
 
     /**
-     * 时间格式化
-     *
-     * @param string /int  $date  时间/时间戳
-     * @param bool $isInt 是否为int
-     *
-     * @return array
-     * @author lengbin(lengbin0@gmail.com)
-     */
-    public static function formatDay($date, $isInt = true)
-    {
-        return self::formatDays($date, $date, $isInt);
-    }
-
-    /**
-     * 双日期 格式化
-     *
-     * @param string $date      双日期
-     * @param string $separator 分割符
-     * @param bool   $isInt     是否为int
-     *
-     * @return array
-     */
-    public static function formatDoubleDate($date, $separator = ' - ', $isInt = true)
-    {
-        $dates = explode($separator, $date);
-        return self::formatDays($dates[0], $dates[1], $isInt);
-    }
-
-    /**
-     * 时间格式化
-     *
-     * @param string /int  $start  时间/时间戳
-     * @param string /int  $end  时间/时间戳
-     * @param bool $isInt 是否为int
-     *
-     * @return array
-     * @author lengbin(lengbin0@gmail.com)
-     */
-    public static function formatDays($start, $end, $isInt = true)
-    {
-        if (is_int($start)) {
-            $start = date('Y-m-d', $start);
-        }
-        if (is_int($end)) {
-            $end = date('Y-m-d', $end);
-        }
-        $start = $start . ' 00:00:00';
-        $end = $end . ' 23:59:59';
-        if ($isInt) {
-            $start = strtotime($start);
-            $end = strtotime($end);
-        }
-        return [$start, $end];
-    }
-
-    /**
-     * 时间格式化
-     *
-     * @param int  $month 月份
-     * @param bool $isInt 是否为int
-     *
-     * @return array
-     * @author lengbin(lengbin0@gmail.com)
-     */
-    public static function formatMonth($month, $isInt = true)
-    {
-        if (strlen($month) < 3) {
-            $month = date("Y-{$month}-d");
-        }
-        $timestamp = strtotime($month);
-        $startTime = date('Y-m-1 00:00:00', $timestamp);
-        $mdays = date('t', $timestamp);
-        $endTime = date('Y-m-' . $mdays . ' 23:59:59', $timestamp);
-        if ($isInt) {
-            $startTime = strtotime($startTime);
-            $endTime = strtotime($endTime);
-        }
-        return [$startTime, $endTime];
-    }
-
-    /**
-     * 人性化时间显示
-     *
-     * @param int $time
-     *
-     * @return false|string
-     */
-    public static function formatTime($time)
-    {
-        $rtime = date("Y-m-d H:i:s", $time);
-        $time = time() - $time;
-        if ($time < 60) {
-            $str = '刚刚';
-        } elseif ($time < 60 * 60) {
-            $min = floor($time / 60);
-            $str = $min . '分钟前';
-        } elseif ($time < 60 * 60 * 24) {
-            $h = floor($time / (60 * 60));
-            $str = $h . '小时前 ';
-        } elseif ($time < 60 * 60 * 24 * 3) {
-            $d = floor($time / (60 * 60 * 24));
-            if ($d == 1) {
-                $str = '昨天 ' . $rtime;
-            } else {
-                $str = '前天 ' . $rtime;
-            }
-        } else {
-            $str = $rtime;
-        }
-        return $str;
-    }
-
-    /**
      * 下划线转驼峰
      * 思路:
      * step1.原字符串转小写,原字符串中的分隔符用空格替换,在字符串开头加上分隔符
      * step2.将字符串中每个单词的首字母转换为大写,再去空格,去字符串首部附加的分隔符.
      */
-    public static function camelize($uncamelized_words, $separator = '_')
+    public static function camelize($value)
     {
-        $uncamelized_words = $separator . str_replace($separator, " ", strtolower($uncamelized_words));
-        return ltrim(str_replace(" ", "", ucwords($uncamelized_words)), $separator);
+        $value = ucwords(str_replace(['-', '_'], ' ', $value));
+        return lcfirst(str_replace(' ', '', $value));
     }
 
     /**
@@ -316,30 +203,26 @@ class FormatHelper
     }
 
     /**
+     * 影藏手机号
      *
-     * format page data and process params
+     * @param string $mobile
      *
-     * @param array $result
-     * @param int   $page
-     * @param int   $pageSize
-     *
-     * @return array
+     * @return string|string[]
      */
-    public static function formatPage(array $result, int $page = 1, int $pageSize = 10): array
+    public static function hideMobile(string $mobile): string
     {
-        if ($page < 0) {
-            $page = 1;
-        }
-        $offset = ($page - 1) * $pageSize;
+        return substr_replace($mobile, '****', 3, 4);
+    }
 
-        $total = count($result);
-        $list = array_slice($result, $offset, $pageSize);
-
-        return [
-            'list'      => $list,
-            'pageSize'  => $pageSize,
-            'total'     => $total,
-            'totalPage' => ceil($total / $pageSize),
-        ];
+    /**
+     * 影藏身份证
+     *
+     * @param string $idcard
+     *
+     * @return string|string[]
+     */
+    public static function hidcard(string $idcard): string
+    {
+        return strlen($idcard) == 15 ? substr_replace($idcard, "*****", 6, 5) : (strlen($idcard) == 18 ? substr_replace($idcard, "********", 6, 8) : $idcard);
     }
 }
