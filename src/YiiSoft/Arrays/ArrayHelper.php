@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Lengbin\Helper\YiiSoft\Arrays;
 
-use \InvalidArgumentException;
+use Closure;
+use InvalidArgumentException;
 use Lengbin\Helper\YiiSoft\StringHelper;
+use Traversable;
 
 /**
  * Yii array helper provides static methods allowing you to deal with arrays more efficiently.
@@ -164,18 +166,18 @@ class ArrayHelper
      * $value = \Yiisoft\Arrays\ArrayHelper::getValue($versions, ['1.0', 'date']);
      * ```
      *
-     * @param array|object          $array   array or object to extract value from
-     * @param string|\Closure|array $key     key name of the array element, an array of keys or property name of the object,
+     * @param array|object         $array    array or object to extract value from
+     * @param string|Closure|array $key      key name of the array element, an array of keys or property name of the object,
      *                                       or an anonymous function returning the value. The anonymous function signature should be:
      *                                       `function($array, $defaultValue)`.
-     * @param mixed                 $default the default value to be returned if the specified array key does not exist. Not used when
+     * @param mixed                $default  the default value to be returned if the specified array key does not exist. Not used when
      *                                       getting value from an object.
      *
      * @return mixed the value of the element if found, default value otherwise
      */
     public static function getValue($array, $key, $default = null)
     {
-        if ($key instanceof \Closure) {
+        if ($key instanceof Closure) {
             return $key($array, $default);
         }
 
@@ -214,9 +216,9 @@ class ArrayHelper
      *
      * 支持 xx.*.xx 获取
      *
-     * @param array|object              $target
-     * @param string|array|int|\Closure $key
-     * @param null|mixed                $default
+     * @param array|object             $target
+     * @param string|array|int|Closure $key
+     * @param null|mixed               $default
      *
      * @return array|mixed
      */
@@ -226,7 +228,7 @@ class ArrayHelper
             return $target;
         }
 
-        if ($key instanceof \Closure) {
+        if ($key instanceof Closure) {
             return $key($target, $default);
         }
 
@@ -552,9 +554,9 @@ class ArrayHelper
      * ]
      * ```
      *
-     * @param array                           $array  the array that needs to be indexed or grouped
-     * @param string|\Closure|null            $key    the column name or anonymous function which result will be used to index the array
-     * @param string|string[]|\Closure[]|null $groups the array of keys, that will be used to group the input array
+     * @param array                          $array   the array that needs to be indexed or grouped
+     * @param string|Closure|null            $key     the column name or anonymous function which result will be used to index the array
+     * @param string|string[]|Closure[]|null $groups  the array of keys, that will be used to group the input array
      *                                                by one or more keys. If the $key attribute or its value for the particular element is null and $groups is not
      *                                                defined, the array element will be discarded. Otherwise, if $groups is specified, array element will be added
      *                                                to the result array without any key.
@@ -616,9 +618,9 @@ class ArrayHelper
      * });
      * ```
      *
-     * @param array           $array
-     * @param string|\Closure $name
-     * @param bool            $keepKeys whether to maintain the array keys. If false, the resulting array
+     * @param array          $array
+     * @param string|Closure $name
+     * @param bool           $keepKeys whether to maintain the array keys. If false, the resulting array
      *                                  will be re-indexed with integers.
      *
      * @return array the list of column values
@@ -674,10 +676,10 @@ class ArrayHelper
      * // ]
      * ```
      *
-     * @param array           $array
-     * @param string|\Closure $from
-     * @param string|\Closure $to
-     * @param string|\Closure $group
+     * @param array          $array
+     * @param string|Closure $from
+     * @param string|Closure $to
+     * @param string|Closure $group
      *
      * @return array
      */
@@ -732,25 +734,26 @@ class ArrayHelper
      *
      * @param array  $array the array with keys to check
      * @param string $key   the key to check
+     * @param bool   $isValidateZero
      *
      * @return bool
      */
-    public static function isValidValue(array $array, string $key): bool
+    public static function isValidValue(array $array, string $key, bool $isValidateZero = true): bool
     {
-        return self::keyExists($array, $key) && !StringHelper::isEmpty($array[$key]);
+        return self::keyExists($array, $key) && !StringHelper::isEmpty($array[$key], $isValidateZero);
     }
 
     /**
      * Sorts an array of objects or arrays (with the same structure) by one or several keys.
      *
-     * @param array                 $array     the array to be sorted. The array will be modified after calling this method.
-     * @param string|\Closure|array $key       the key(s) to be sorted by. This refers to a key name of the sub-array
+     * @param array                $array      the array to be sorted. The array will be modified after calling this method.
+     * @param string|Closure|array $key        the key(s) to be sorted by. This refers to a key name of the sub-array
      *                                         elements, a property name of the objects, or an anonymous function returning the values for comparison
      *                                         purpose. The anonymous function signature should be: `function($item)`.
      *                                         To sort by multiple keys, provide an array of keys here.
-     * @param int|array             $direction the sorting direction. It can be either `SORT_ASC` or `SORT_DESC`.
+     * @param int|array            $direction  the sorting direction. It can be either `SORT_ASC` or `SORT_DESC`.
      *                                         When sorting by multiple keys with different sorting directions, use an array of sorting directions.
-     * @param int|array             $sortFlag  the PHP sort flag. Valid values include
+     * @param int|array            $sortFlag   the PHP sort flag. Valid values include
      *                                         `SORT_REGULAR`, `SORT_NUMERIC`, `SORT_STRING`, `SORT_LOCALE_STRING`, `SORT_NATURAL` and `SORT_FLAG_CASE`.
      *                                         Please refer to [PHP manual](http://php.net/manual/en/function.sort.php)
      *                                         for more details. When sorting by multiple keys with different sort flags, use an array of sort flags.
@@ -973,7 +976,7 @@ class ArrayHelper
      */
     public static function isTraversable($var): bool
     {
-        return is_array($var) || $var instanceof \Traversable;
+        return is_array($var) || $var instanceof Traversable;
     }
 
     /**

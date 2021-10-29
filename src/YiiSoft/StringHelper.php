@@ -435,13 +435,15 @@ class StringHelper
 
     /**
      *
-     * @param $value
+     * @param mixed $value
+     * @param bool  $isValidateZero
      *
      * @return bool
      */
-    public static function isEmpty($value): bool
+    public static function isEmpty($value, bool $isValidateZero = false): bool
     {
-        return $value === '' || $value === [] || $value === null || is_string($value) && trim($value) === '';
+        $validate = $value === '' || $value === [] || $value === null || is_string($value) && trim($value) === '';
+        return $validate && (!$isValidateZero || $value === 0);
     }
 }
 
