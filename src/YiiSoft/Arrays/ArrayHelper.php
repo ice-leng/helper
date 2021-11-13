@@ -738,7 +738,7 @@ class ArrayHelper
      *
      * @return bool
      */
-    public static function isValidValue(array $array, string $key, bool $isValidateZero = true): bool
+    public static function isValidValue(array $array, string $key, bool $isValidateZero = false): bool
     {
         return self::keyExists($array, $key) && !StringHelper::isEmpty($array[$key], $isValidateZero);
     }

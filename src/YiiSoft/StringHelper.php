@@ -443,7 +443,7 @@ class StringHelper
     public static function isEmpty($value, bool $isValidateZero = false): bool
     {
         $validate = $value === '' || $value === [] || $value === null || is_string($value) && trim($value) === '';
-        return $validate && (!$isValidateZero || $value === 0);
+        return $validate || (!$isValidateZero && $value === 0);
     }
 }
 
