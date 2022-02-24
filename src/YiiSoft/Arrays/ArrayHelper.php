@@ -1105,36 +1105,90 @@ class ArrayHelper
         return get_object_vars($object);
     }
 
+
+
     /**
-     * 相同数组 值相加
-     *
-     * @param array $arrays
-     * @param array $except
+     * 切割 数组
+     * @param array $data
+     * @param int   $number
+     * @param int   $total
      *
      * @return array
      */
-    public static function valueAdd(array $arrays, array $except = []): array
+    public static function slice(array $data, int $number, int $total): array
     {
-        if (empty($arrays)) {
-            return $arrays;
+        $count = count($data);
+        $newNumber = $count + $number;
+        if ($newNumber < $total) {
+            return [$data, $newNumber];
         }
-        $count = count($arrays);
-        if ($count <= 1) {
-            return current($arrays);
+        $result = array_slice($data, 0, ($total - $number));
+        return [$result, $total];
+    }
+
+    /**
+     * 支持 子项 合并
+     * @param array  $snapshotCustoms
+     * @param array  $statsCustoms
+     * @param string $idKey
+     * @param array  $mergeKeys
+     * @param string $itemIdKey
+     *
+     * @return array
+     */
+    public static function handleMerge(array $snapshotCustoms, array $statsCustoms, string $idKey, array $mergeKeys, string $itemIdKey = ''): array
+    {
+        if (empty($snapshotCustoms)) {
+            return $statsCustoms;
         }
-        $data = $arrays[0];
-        for ($i = 1; $i < $count; $i++) {
-            $items = $arrays[$i];
-            if (empty($items)) {
+        $snapshotCustoms = self::index($snapshotCustoms, $idKey);
+        foreach ($statsCustoms as $i => $statsCustom) {
+            $snapshotCustom = $snapshotCustoms[$statsCustom[$idKey]] ?? [];
+            if (empty($snapshotCustom)) {
                 continue;
             }
-            foreach ($items as $key => $item) {
-                if (in_array($key, $except)) {
-                    continue;
+            foreach ($mergeKeys as $mergeKey) {
+                if (!self::keyExists($statsCustom, $mergeKey)) {
+                    $statsCustoms[$i][$mergeKey] = 0;
                 }
-                $data[$key] = bcadd($data[$key], $item, 2);
+                $statsCustoms[$i][$mergeKey] += $snapshotCustom[$mergeKey] ?? 0;
+            }
+            //item
+            if (!empty($statsCustom['items'])) {
+                $statsCustom['items'] = self::handleMerge($snapshotCustom['items'], $statsCustom['items'], $itemIdKey, $mergeKeys);
+            }
+            unset($snapshotCustoms[$statsCustom[$idKey]]);
+        }
+        if (!empty($snapshotCustoms)) {
+            $statsCustoms = array_merge($statsCustoms, array_values($snapshotCustoms));
+        }
+        return $statsCustoms;
+    }
+
+    /**
+     * 2个相同数据 合并，  支持 json字符串
+     * @param array $stats
+     * @param array $snapshot
+     * @param array $keys
+     *
+     * @return array
+     */
+    public static function mergeData(array $stats, array $snapshot, array $keys = []): array
+    {
+        foreach ($stats as $key => $value) {
+            if (isset($keys[$key])) {
+                $statsCustoms = json_decode($value, true);
+                $snapshotCustoms = !empty($snapshot[$key]) ? $snapshot[$key] : '';
+                if (!empty($snapshotCustoms)) {
+                    $snapshotCustoms = json_decode($snapshotCustoms, true);
+                    $statsCustoms = self::handleMerge($snapshotCustoms, $statsCustoms, ...$keys[$key]);
+                }
+                $stats[$key] = json_encode($statsCustoms, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            } else {
+                $stats[$key] += $snapshot[$key] ?? 0;
             }
         }
-        return $data;
+        return $stats;
     }
+
 }
