@@ -1155,7 +1155,7 @@ class ArrayHelper
             }
             //item
             if (!empty($statsCustom['items'])) {
-                $statsCustom['items'] = self::handleMerge($snapshotCustom['items'], $statsCustom['items'], $itemIdKey, $mergeKeys);
+                $statsCustoms[$i]['items'] = self::handleMerge($snapshotCustom['items'], $statsCustom['items'], $itemIdKey, $mergeKeys);
             }
             unset($snapshotCustoms[$statsCustom[$idKey]]);
         }
