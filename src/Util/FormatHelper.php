@@ -1,16 +1,8 @@
 <?php
 
-/**
- * Created by PhpStorm.
- * User: lengbin
- * Date: 2017/6/5
- * Time: 下午1:22
- */
-
 namespace Lengbin\Helper\Util;
 
 use Lengbin\Helper\YiiSoft\Arrays\ArrayHelper;
-use Lengbin\Helper\YiiSoft\StringHelper;
 
 /**
  * Class FormatHelper
@@ -26,9 +18,8 @@ class FormatHelper
      * @param int $size 字节
      *
      * @return string
-     * @author lengbin(lengbin0@gmail.com)
      */
-    public static function formatBytes($size)
+    public static function formatBytes(int $size): string
     {
         $unit = ['b', 'kb', 'mb', 'gb', 'tb', 'pb'];
         return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
@@ -42,7 +33,7 @@ class FormatHelper
      *
      * @return string
      */
-    public static function formatNumbers($number, $decimals)
+    public static function formatNumbers($number, $decimals): string
     {
         return sprintf("%.{$decimals}f", $number);
     }
@@ -53,14 +44,12 @@ class FormatHelper
      * @param int $length 位数
      *
      * @return string
-     * @author lengbin(lengbin0@gmail.com)
      */
-    public static function randNum($length = 6)
+    public static function randNum(int $length = 6): string
     {
         $min = pow(10, ($length - 1));
         $max = pow(10, $length) - 1;
-        $mem = rand($min, $max);
-        return $mem;
+        return rand($min, $max);
     }
 
     /**
@@ -69,9 +58,8 @@ class FormatHelper
      * @param int $num 位数
      *
      * @return string
-     * @author lengbin(lengbin0@gmail.com)
      */
-    public static function randStr($num = 10)
+    public static function randStr(int $num = 10): string
     {
         $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $string = "";
@@ -84,13 +72,12 @@ class FormatHelper
     /**
      * 数字金额转换为中文
      *
-     * @param double $num 数字
+     * @param string $num 数字
      * @param bool   $sim 大小写
      *
      * @return string
-     * @author lengbin(lengbin0@gmail.com)
      */
-    public static function numberToChinese($num, $sim = false)
+    public static function numberToChinese(string $num, bool $sim = false): string
     {
         if (!is_numeric($num)) {
             return '含有非数字非小数点字符！';
@@ -163,7 +150,7 @@ class FormatHelper
      * step1.原字符串转小写,原字符串中的分隔符用空格替换,在字符串开头加上分隔符
      * step2.将字符串中每个单词的首字母转换为大写,再去空格,去字符串首部附加的分隔符.
      */
-    public static function camelize($value)
+    public static function camelize(string $value): string
     {
         $value = ucwords(str_replace(['-', '_'], ' ', $value));
         return lcfirst(str_replace(' ', '', $value));
@@ -174,7 +161,7 @@ class FormatHelper
      * 思路:
      * 小写和大写紧挨一起的地方,加上分隔符,然后全部转小写
      */
-    public static function uncamelize($camelCaps, $separator = '_')
+    public static function uncamelize(string $camelCaps, string $separator = '_'): string
     {
         return strtolower(preg_replace('/([a-z])([A-Z])/', "$1" . $separator . "$2", $camelCaps));
     }
@@ -183,14 +170,13 @@ class FormatHelper
      * 验证请求参数字段
      * 支持别名
      *
-     * @param array  $requests      请求参数
-     * @param array  $validateField 验证字段，支持别名  ['别名' => 字段， 0 => 字段]
-     * @param string $defaults
+     * @param array        $requests      请求参数
+     * @param array        $validateField 验证字段，支持别名  ['别名' => 字段， 0 => 字段]
+     * @param string|array $defaults
      *
      * @return array
-     * @author lengbin(lengbin0@gmail.com)
      */
-    public static function validateParams(array $requests, array $validateField, $defaults = '')
+    public static function validateParams(array $requests, array $validateField, $defaults = ''): array
     {
         $data = [];
         foreach ($validateField as $key => $field) {
@@ -200,29 +186,5 @@ class FormatHelper
             $data[$index] = $param;
         }
         return $data;
-    }
-
-    /**
-     * 影藏手机号
-     *
-     * @param string $mobile
-     *
-     * @return string|string[]
-     */
-    public static function hideMobile(string $mobile): string
-    {
-        return substr_replace($mobile, '****', 3, 4);
-    }
-
-    /**
-     * 影藏身份证
-     *
-     * @param string $idcard
-     *
-     * @return string|string[]
-     */
-    public static function hidcard(string $idcard): string
-    {
-        return strlen($idcard) == 15 ? substr_replace($idcard, "*****", 6, 5) : (strlen($idcard) == 18 ? substr_replace($idcard, "********", 6, 8) : $idcard);
     }
 }

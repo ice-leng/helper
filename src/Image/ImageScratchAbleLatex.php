@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ice.leng(lengbin@geridge.com)
- * Date: 16/9/8
- * Time: 下午2:32
- */
 
 namespace Lengbin\Helper\Image;
 
@@ -15,7 +9,6 @@ namespace Lengbin\Helper\Image;
  * 支持定义输出文件后缀
  * Class ImageScratchableLatexClass
  * @package libs\Img
- * @auth    ice.leng(lengbin@geridge.com)
  *
  *  $img  = new ImageScratchableLatexClass($file);
  *  $data = $img->generateImage();
@@ -37,7 +30,6 @@ class ImageScratchAbleLatex extends BaseImage implements ImageInterface
      *
      * @return array [xxxxx.jpeg, xxxx.jepg]
      *
-     * @auth ice.leng(lengbin@geridge.com)
      * @issue
      */
     public function generateImage($outputDir = '')

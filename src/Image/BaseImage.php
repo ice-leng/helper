@@ -1,12 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ice.leng(lengbin@geridge.com)
- * Date: 2016/12/13
- * Time: 下午5:00
- */
 
 namespace Lengbin\Helper\Image;
+
+use Exception;
 
 class BaseImage
 {
@@ -40,11 +36,11 @@ class BaseImage
      *
      * @param $file
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function checkFile($file)
     {
-        if( !is_file( $file ) ) throw new \Exception( $file . '文件不存在' );
+        if( !is_file( $file ) ) throw new Exception( $file . '文件不存在' );
     }
 
     /**
@@ -64,13 +60,13 @@ class BaseImage
      *
      * @param resource $file 文件
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function getFileSource($file)
     {
         // 图片资源加载
         $pathInfo = getimagesize( $file );
-        list( $this->width, $this->height ) = $pathInfo;
+        [ $this->width, $this->height ] = $pathInfo;
         $type = $pathInfo['2'];
         switch( $type ){
             case '1' :
@@ -85,7 +81,7 @@ class BaseImage
             default:
                 break;
         }
-        if( !$this->source ) throw new \Exception( $file . '  文件有问题,请联系管理员' );
+        if( !$this->source ) throw new Exception( $file . '  文件有问题,请联系管理员' );
     }
 
     /**
@@ -153,9 +149,6 @@ class BaseImage
     /**
      * 生成随机数
      * @return string
-     *
-     * @auth ice.leng(lengbin@geridge.com)
-     * @issue
      */
     protected function createFileName()
     {

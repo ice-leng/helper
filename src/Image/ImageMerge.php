@@ -1,12 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ice.leng(lengbin@geridge.com)
- * Date: 2016/12/13
- * Time: 下午3:15
- */
 
 namespace Lengbin\Helper\Image;
+
+use Exception;
 
 /**
  * 图片拼接， 支持横竖拼接
@@ -19,7 +15,6 @@ namespace Lengbin\Helper\Image;
  *
  * Class ImageMergeClass
  * @package libs\Img
- * @auth    ice.leng(lengbin@geridge.com)
  *
  *  $img = new \lengbin\helper\image\ImageMergeClass(['img/ice.jpg', 'img/1.jpg']);
  *  $img->generateImage();
@@ -80,7 +75,7 @@ class ImageMerge extends BaseImage implements ImageInterface
     public function __construct($files)
     {
         $this->_files = $files;
-        if( count( $files ) < 1 ) throw new \Exception( '图片拼接至少需要2张图' );
+        if( count( $files ) < 1 ) throw new Exception( '图片拼接至少需要2张图' );
         $file = isset( $files[0] ) ? $files[0] : '';
         parent::__construct( $file );
         $this->setMode();
@@ -175,8 +170,6 @@ class ImageMerge extends BaseImage implements ImageInterface
      *
      * @return string / array xxx.jpeg / [xxxxx.jpeg, xxxx.jepg]
      *
-     * @auth ice.leng(lengbin@geridge.com)
-     * @issue
      */
     public function generateImage($outputDir = '')
     {

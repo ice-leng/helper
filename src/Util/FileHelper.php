@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: lengbin
- * Date: 2017/6/5
- * Time: 下午3:15
- */
 
 namespace Lengbin\Helper\Util;
 
@@ -122,7 +116,6 @@ class FileHelper extends BaseFileHelper
      * @param int    $chmod 权限
      *
      * @return bool
-     * @author lengbin(lengbin0@gmail.com)
      */
     public static function chmod($path, $chmod): bool
     {
@@ -157,7 +150,6 @@ class FileHelper extends BaseFileHelper
      *
      * @return bool
      *
-     * @author lengbin(lengbin0@gmail.com)
      */
     public static function dirExistFile($path)
     {

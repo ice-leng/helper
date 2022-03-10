@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ice.leng(lengbin@geridge.com)
- * Date: 16/9/8
- * Time: 下午2:32
- */
 
 namespace Lengbin\Helper\Image;
 
@@ -18,8 +12,6 @@ interface ImageInterface
      *
      * @return string / array xxx.jpeg / [xxxxx.jpeg, xxxx.jepg]
      *
-     * @auth ice.leng(lengbin@geridge.com)
-     * @issue
      */
     public function generateImage($outputDir = '');
 

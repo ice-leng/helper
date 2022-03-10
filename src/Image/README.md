@@ -8,7 +8,6 @@
      *
      * Class ImageScalingClass
      * @package libs\Img
-     * @auth    ice.leng(lengbin@geridge.com)
      *
      *  $img = new \lengbin\helper\image\ImageGeometricScaling(__DIR__ . '/img/1.jpg');
      *  $img->setWidth(960);
@@ -29,7 +28,6 @@
      *
      * Class ImageMergeClass
      * @package libs\Img
-     * @auth    ice.leng(lengbin@geridge.com)
      *
      *  $img = new \lengbin\helper\image\ImageMerge(['img/ice.jpg', 'img/1.jpg']);
      *  $img->generateImage();

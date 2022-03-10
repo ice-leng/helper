@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Lengbin\Helper\Util;
 
 use DateTime;
+use Exception;
 
 class DateHelper
 {
@@ -24,7 +25,7 @@ class DateHelper
      * @param $time
      *
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     public static function gmt_iso8601($time)
     {
@@ -43,7 +44,6 @@ class DateHelper
      * @param bool $isInt 是否为int
      *
      * @return array
-     * @author lengbin(lengbin0@gmail.com)
      */
     public static function formatDay($date, $isInt = true)
     {
@@ -73,7 +73,6 @@ class DateHelper
      * @param bool $isInt 是否为int
      *
      * @return array
-     * @author lengbin(lengbin0@gmail.com)
      */
     public static function formatDays($start, $end, $isInt = true)
     {
@@ -99,7 +98,6 @@ class DateHelper
      * @param bool $isInt 是否为int
      *
      * @return array
-     * @author lengbin(lengbin0@gmail.com)
      */
     public static function formatMonth($month, $isInt = true)
     {

@@ -37,7 +37,6 @@
          *  $zip->unzip('test');
          *
          * @package api\controllers
-         * @author  lengbin(lengbin0@gmail.com)
          */
     
 ```

@@ -1,12 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: lengbin
- * Date: 2018/10/13
- * Time: 下午2:43
- */
 
 namespace Lengbin\Helper\Util;
+
+use stdClass;
 
 class SnowFlakeHelper
 {
@@ -41,12 +37,12 @@ class SnowFlakeHelper
      * 反向解析雪花算法生成的编号
      * @author : evalor <master@evalor.cn>
      * @param int|float $snowFlakeId
-     * @return \stdClass
+     * @return stdClass
      */
     static function unmake($snowFlakeId)
     {
         $Binary = str_pad(decbin($snowFlakeId), 64, '0', STR_PAD_LEFT);
-        $Object = new \stdClass;
+        $Object = new stdClass;
         $Object->timestamp = bindec(substr($Binary, 0, 42)) + self::$twepoch;
         $Object->dataCenterID = bindec(substr($Binary, 42, 5));
         $Object->workerID = bindec(substr($Binary, 47, 5));

@@ -12,7 +12,6 @@ class RegularHelper
      * @param string $url
      *
      * @return bool
-     * @author lengbin(lengbin0@gmail.com)
      */
     public static function checkUrl(string $url): bool
     {
@@ -29,7 +28,6 @@ class RegularHelper
      * @param string $url
      *
      * @return bool
-     * @author lengbin(lengbin0@gmail.com)
      */
     public static function checkImage($url): bool
     {
@@ -54,24 +52,5 @@ class RegularHelper
         }
         $rule = '/^(?=.*[a-zA-Z0-9].*)(?=.*[a-zA-Z\W].*)(?=.*[0-9\W].*).{6,20}$/';
         return !preg_match($rule, $password);
-    }
-
-    /**
-     * 手机号
-     *
-     * @param $mobile
-     *
-     * @return bool
-     */
-    public static function isInvalidMobile($mobile): bool
-    {
-        if (StringHelper::isEmpty($mobile)) {
-            return true;
-        }
-        if (strpos($mobile, '+86') === 0) {
-            $mobile = substr($mobile, 3);
-        }
-        $rule = '/^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\d{8}$/';
-        return !preg_match($rule, $mobile);
     }
 }
